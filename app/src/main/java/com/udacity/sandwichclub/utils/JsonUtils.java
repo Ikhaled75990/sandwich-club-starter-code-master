@@ -1,11 +1,6 @@
 package com.udacity.sandwichclub.utils;
 
 
-import android.text.TextUtils;
-import android.util.Log;
-import android.widget.TextView;
-
-import com.udacity.sandwichclub.R;
 import com.udacity.sandwichclub.model.Sandwich;
 
 import org.json.JSONArray;
@@ -17,61 +12,49 @@ import java.util.List;
 
 public class JsonUtils {
 
-    public static final String LOG_TAG = JsonUtils.class.getSimpleName();
+    private static final String NAME_KEY = "name";
+    private static final String MAIN_NAME_KEY = "mainName";
+    private static final String ALSO_KNOWN_AS_KEY = "alsoKnownAs";
+    private static final String PLACE_OF_ORIGIN_KEY = "placeOfOrigin";
+    private static final String DESCRIPTION_KEY = "description";
+    private static final String IMAGE_KEY = "image";
+    private static final String INGREDIENTS_KEY = "ingredients";
 
-    private JsonUtils(){
 
-    }
+    public static Sandwich parseSandwichJson(String sandwichJson) throws JSONException {
+
+        List<String> alsoKnownAsList = new ArrayList<>();
+
+        List<String> ingredientsList = new ArrayList<>();
 
 
 
-    public static Sandwich parseSandwichJson(String sandwichJson) {
+        JSONObject sandwichJsonResponse = new JSONObject(sandwichJson);
+        JSONObject sandwichJsonObject = sandwichJsonResponse.getJSONObject(NAME_KEY);
+        Sandwich sandwich = new Sandwich();
 
-        if (TextUtils.isEmpty(sandwichJson)) {
-            return null;
+
+        sandwich.setMainName(sandwichJsonObject.getString(MAIN_NAME_KEY));
+
+
+        JSONArray alsoKnownAsJsonArray = sandwichJsonObject.getJSONArray(ALSO_KNOWN_AS_KEY);
+        for (int i = 0; i < alsoKnownAsJsonArray.length(); i++) {
+            alsoKnownAsList.add(alsoKnownAsJsonArray.getString(i));
         }
+        sandwich.setAlsoKnownAs(alsoKnownAsList);
+        sandwich.setPlaceOfOrigin(sandwichJsonResponse.getString(PLACE_OF_ORIGIN_KEY));
+        sandwich.setDescription(sandwichJsonResponse.getString(DESCRIPTION_KEY));
+        sandwich.setImage(sandwichJsonResponse.getString(IMAGE_KEY));
 
-        ArrayList<String> alsoKnownAs = new ArrayList<>();
-        ArrayList<String> ingredients = new ArrayList<>();
-
-
-
-
-
-
-        try {
-
-            JSONObject sandwichJsonResponse = new JSONObject(sandwichJson);
-
-
-            JSONArray sandwichArray = sandwichJsonResponse.getJSONArray("sandwich_details");
-
-            for (int i = 0; i < sandwichArray.length(); i++) {
-                JSONObject currentSandwich = sandwichArray.getJSONObject(i);
-                JSONObject name = currentSandwich.getJSONObject("name");
-
-                String mainName = name.getString("mainName");
-                String placeOfOrigin = name.getString("placeOfOrigin");
-                String description = name.getString("description");
-                String image = name.getString("image");
-
-                alsoKnownAs.add(name.getString("alsoKnownAs"));
-
-                ingredients.add(name.getString("ingredients"));
-
-                return new Sandwich(mainName, alsoKnownAs, placeOfOrigin, description, image
-                , ingredients);
-
-
-
-            }
-
-        } catch (JSONException e) {
-            Log.e(LOG_TAG, "Problem parsing the sandwich JSON results", e);
+        JSONArray ingredientsJsonArray = sandwichJsonObject.getJSONArray(INGREDIENTS_KEY);
+        for (int i = 0; i < ingredientsJsonArray.length(); i++) {
+            ingredientsList.add(ingredientsJsonArray.getString(i));
         }
+        sandwich.setIngredients(ingredientsList);
 
 
-        return null;
+        return sandwich;
+
     }
 
 }

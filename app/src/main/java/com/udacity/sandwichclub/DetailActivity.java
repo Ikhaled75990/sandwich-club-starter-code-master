@@ -3,6 +3,7 @@ package com.udacity.sandwichclub;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -18,9 +19,9 @@ public class DetailActivity extends AppCompatActivity {
 
     public static final String EXTRA_POSITION = "extra_position";
     private static final int DEFAULT_POSITION = -1;
+    TextView alsoKnownAsTv, placeOfOriginTv, descriptionTv, ingredientsTv;
+    Sandwich sandwich = null;
 
-    private ListView listView;
-    private SandwichAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +29,10 @@ public class DetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_detail);
 
         ImageView ingredientsIv = findViewById(R.id.image_iv);
+         alsoKnownAsTv = findViewById(R.id.also_known_tv);
+         placeOfOriginTv = findViewById(R.id.origin_tv);
+         descriptionTv = findViewById(R.id.description_tv);
+         ingredientsTv = findViewById(R.id.ingredients_tv);
 
 
 
@@ -45,8 +50,11 @@ public class DetailActivity extends AppCompatActivity {
 
         String[] sandwiches = getResources().getStringArray(R.array.sandwich_details);
         String json = sandwiches[position];
-        Sandwich sandwich = null;
+        try {
             sandwich = JsonUtils.parseSandwichJson(json);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
         if (sandwich == null) {
             // Sandwich data unavailable
             closeOnError();
@@ -67,7 +75,10 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void populateUI() {
-        listView = (ListView) findViewById(R.id.list);
+        alsoKnownAsTv.setText(TextUtils.join(", ", sandwich.getAlsoKnownAs()));
+        placeOfOriginTv.setText(sandwich.getPlaceOfOrigin());
+        descriptionTv.setText(sandwich.getDescription());
+        ingredientsTv.setText(TextUtils.join(", ", sandwich.getIngredients()));
 
 
 
